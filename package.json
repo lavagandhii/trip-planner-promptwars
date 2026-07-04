@@ -1,0 +1,10 @@
+{
+  "name": "trip-planner-promptwars",
+  "version": "1.0.0",
+  "description": "Bespoke travel intelligence planner",
+  "scripts": {
+    "test": "node tests/unit.test.js"
+  },
+  "author": "",
+  "license": "ISC"
+}
