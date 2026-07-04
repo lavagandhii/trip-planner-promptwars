@@ -1,3 +1,9 @@
+/**
+ * Netlify Serverless Handler for Travel Planning with Gemini AI
+ * @param {Object} event - HTTP event object
+ * @param {Object} context - Execution context
+ * @returns {Object} HTTP response containing JSON itinerary or error
+ */
 exports.handler = async function(event, context) {
     if (event.httpMethod !== "POST") {
         return { statusCode: 405, body: "Method Not Allowed" };
@@ -5,6 +11,19 @@ exports.handler = async function(event, context) {
 
     try {
         const { destination, days, budget, travelerType, preferences } = JSON.parse(event.body);
+
+        // Security & Payload Validation Layer
+        if (!destination || typeof destination !== 'string' || destination.trim().length === 0 || destination.length > 100) {
+            return { statusCode: 400, body: JSON.stringify({ error: "Invalid destination format. Must be 1-100 characters." }) };
+        }
+        const parsedDays = parseInt(days, 10);
+        if (isNaN(parsedDays) || parsedDays < 1 || parsedDays > 14) {
+            return { statusCode: 400, body: JSON.stringify({ error: "Invalid duration. Duration must be between 1 and 14 days." }) };
+        }
+        const parsedBudget = parseInt(budget, 10);
+        if (isNaN(parsedBudget) || parsedBudget < 1000 || parsedBudget > 10000000) {
+            return { statusCode: 400, body: JSON.stringify({ error: "Invalid budget. Must be between ₹1,000 and ₹1,00,00,000." }) };
+        }
 
         if (!process.env.GEMINI_API_KEY) {
             return {
@@ -27,14 +46,11 @@ exports.handler = async function(event, context) {
 
         CRITICAL GROUNDING RULES FOR PRICES:
         - ALL COSTS AND BUDGETS MUST BE CALCULATED STRICTLY ON A PER-PERSON BASIS. Do NOT multiply costs for families/groups. The user wants to see the cost for ONE person in that unit.
-        - Reason relative to these estimated base anchors PER PERSON: 
-          * Avg Budget Hotel (Split Cost): ₹2,000/night
-          * Authentic Local Meal: ₹300
-          * Premium/Tourist Meal: ₹1,500
-          * Local Transport (Bus/Metro): ₹100
-          * Tourist Transport (Taxi Split Cost): ₹300
+        - You MUST determine realistic base anchors for the SPECIFIC destination requested (${destination}). For example, a local meal in Paris costs vastly more than in Bali.
+        - Mentally calculate these contextual anchors (e.g. average budget hotel split cost, local meal, taxi split cost) for ${destination}.
+        - Use those contextual anchors to calculate realistic costs, but OUTPUT ALL FINAL VALUES IN ₹ INR for the user's convenience.
         - Ensure the total itemized budget does NOT exceed the Per Person Budget of ₹${budget}.
-        - Provide a 'budgetReasoning' paragraph explaining the financial reality of this trip (e.g. "₹40,000 is a very comfortable per-person budget for Bali, allowing for premium stays and private transport...").
+        - Provide a 'budgetReasoning' paragraph explaining the financial reality of this trip (e.g. "₹40,000 is a very comfortable per-person budget for Bali, allowing for premium stays and private transport, but would be extremely tight for Paris...").
         
         PACE CHECK RULE (CRITICAL):
         - For each activity, estimate travelTimeMins (travel time from the PREVIOUS location, or from the hotel for the first activity).
