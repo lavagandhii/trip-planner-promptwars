@@ -1,5 +1,5 @@
 /**
- * Netlify Serverless Handler for Travel Planning with Gemini AI
+ * Netlify Serverless Handler for Travel Planning with Gemini AI (v3 Final Release)
  * @param {Object} event - HTTP event object
  * @param {Object} context - Execution context
  * @returns {Object} HTTP response containing JSON itinerary or error
