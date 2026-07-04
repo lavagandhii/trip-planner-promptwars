@@ -392,6 +392,11 @@
             wikiCache[title] = finalHtml;
             drawer.innerHTML = finalHtml;
 
+        } catch (e) {
+            drawer.innerHTML = `<div class="wiki-text" style="padding: 1rem;">Database connection interrupted.</div>`;
+        }
+    };
+
     /**
      * Exports the current plan into beautifully formatted Markdown and copies to clipboard
      */
