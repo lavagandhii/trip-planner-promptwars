@@ -18,7 +18,7 @@ exports.handler = async function(event, context) {
         Plan a trip to: ${destination}
         Duration: ${days} days
         Traveler: ${travelerType}
-        Total Budget: ₹${budget} INR
+        Per Person Budget: ₹${budget} INR
         Preferences: ${preferences || 'None'}
 
         CRITICAL VALIDATION:
@@ -26,14 +26,15 @@ exports.handler = async function(event, context) {
         If isValidDestination is false, you do NOT need to fill out the rest of the itinerary accurately, just return empty arrays.
 
         CRITICAL GROUNDING RULES FOR PRICES:
-        - Reason relative to these estimated base anchors per person: 
-          * Avg Budget Hotel: ₹2,000/night
+        - ALL COSTS AND BUDGETS MUST BE CALCULATED STRICTLY ON A PER-PERSON BASIS. Do NOT multiply costs for families/groups. The user wants to see the cost for ONE person in that unit.
+        - Reason relative to these estimated base anchors PER PERSON: 
+          * Avg Budget Hotel (Split Cost): ₹2,000/night
           * Authentic Local Meal: ₹300
           * Premium/Tourist Meal: ₹1,500
           * Local Transport (Bus/Metro): ₹100
-          * Tourist Transport (Taxi): ₹600
-        - Scale costs based on the 'Traveler Type' (e.g. Family = 3-4x cost for food/transport).
-        - Ensure the total itemized budget does NOT exceed ₹${budget}. If budget is too low, state compromises in insiderTips.
+          * Tourist Transport (Taxi Split Cost): ₹300
+        - Ensure the total itemized budget does NOT exceed the Per Person Budget of ₹${budget}.
+        - Provide a 'budgetReasoning' paragraph explaining the financial reality of this trip (e.g. "₹40,000 is a very comfortable per-person budget for Bali, allowing for premium stays and private transport...").
         
         PACE CHECK RULE (CRITICAL):
         - For each activity, estimate travelTimeMins (travel time from the PREVIOUS location, or from the hotel for the first activity).
@@ -82,6 +83,7 @@ exports.handler = async function(event, context) {
                 budgetSummary: {
                     type: "object",
                     properties: {
+                        budgetReasoning: { type: "string" },
                         stayTotalINR: { type: "number" },
                         foodLocalINR: { type: "number" },
                         foodPremiumINR: { type: "number" },
@@ -90,7 +92,7 @@ exports.handler = async function(event, context) {
                         activitiesLocalINR: { type: "number" },
                         activitiesPremiumINR: { type: "number" }
                     },
-                    required: ["stayTotalINR", "foodLocalINR", "foodPremiumINR", "transportLocalINR", "transportPremiumINR", "activitiesLocalINR", "activitiesPremiumINR"]
+                    required: ["budgetReasoning", "stayTotalINR", "foodLocalINR", "foodPremiumINR", "transportLocalINR", "transportPremiumINR", "activitiesLocalINR", "activitiesPremiumINR"]
                 }
             },
             required: ["isValidDestination", "itinerary", "insiderTips", "packingList", "budgetSummary"]
