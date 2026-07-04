@@ -1,9 +1,9 @@
-    const popularDestinations = [
-        "Kyoto, Japan", "Tokyo, Japan", "Paris, France", "Rome, Italy", 
-        "New York City, USA", "Bali, Indonesia", "Reykjavik, Iceland", 
-        "Cape Town, South Africa", "Machu Picchu, Peru", "Queenstown, New Zealand",
-        "Goa, India", "Jaipur, India", "New Delhi, India", "Kerala, India"
-    ];
+const popularDestinations = [
+    "Kyoto, Japan", "Tokyo, Japan", "Paris, France", "Rome, Italy", 
+    "New York City, USA", "Bali, Indonesia", "Reykjavik, Iceland", 
+    "Cape Town, South Africa", "Machu Picchu, Peru", "Queenstown, New Zealand",
+    "Goa, India", "Jaipur, India", "New Delhi, India", "Kerala, India"
+];
 
     /**
      * Debounce utility to prevent high-frequency DOM/event churn
