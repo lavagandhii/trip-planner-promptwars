@@ -10,31 +10,31 @@
 </head>
 <body>
 
-<!-- Left: Sticky Form -->
-<div class="input-panel">
+<!-- Left: Sticky Form Sidebar -->
+<aside class="input-panel" aria-label="Trip Configuration Form">
     <span class="eyebrow">WanderMind AI</span>
     <h1>Bespoke Journeys.</h1>
     <p style="color: var(--text-secondary); margin-bottom: 3rem; font-size: 1.1rem;">Expert itineraries grounded in authentic market data.</p>
     
     <div id="error-box" aria-live="assertive" role="alert"></div>
 
-    <form id="tripForm">
+    <form id="tripForm" aria-label="Itinerary Generation Form">
         <div class="form-group" style="position: relative;">
-            <input type="text" id="destination" required placeholder=" " value="Kyoto, Japan" autocomplete="off">
+            <input type="text" id="destination" required placeholder="Select or type destination" value="Kyoto, Japan" autocomplete="off" aria-label="Destination City or Country" aria-required="true">
             <label for="destination">Destination</label>
-            <div id="autocomplete-list" class="autocomplete-items"></div>
+            <div id="autocomplete-list" class="autocomplete-items" role="listbox" aria-label="Destination Suggestions"></div>
         </div>
         <div class="form-group">
-            <input type="number" id="days" required min="1" max="14" value="3" placeholder=" ">
+            <input type="number" id="days" required min="1" max="14" value="3" placeholder="Number of days" aria-label="Duration in Days" aria-required="true">
             <label for="days">Duration (Days)</label>
         </div>
         <div class="form-group">
-            <input type="number" id="budget" required min="1000" step="500" value="40000" placeholder=" ">
+            <input type="number" id="budget" required min="1000" step="500" value="40000" placeholder="Budget in INR" aria-label="Per Person Budget in Rupees" aria-required="true">
             <label for="budget">Per Person Budget (₹ INR)</label>
         </div>
         <div class="form-group">
             <label for="travelerType" style="margin-bottom:0.5rem; padding-top: 0.5rem;">Travel Unit</label>
-            <select id="travelerType">
+            <select id="travelerType" aria-label="Select Traveler Type">
                 <option value="Solo">Solo Explorer</option>
                 <option value="Couple" selected>Couple</option>
                 <option value="Family">Family (with Kids)</option>
@@ -42,10 +42,10 @@
             </select>
         </div>
         <div class="form-group">
-            <textarea id="preferences" placeholder=" "></textarea>
+            <textarea id="preferences" placeholder="Specify pace, vibe, or special interests" aria-label="Curatorial Directives and Travel Preferences"></textarea>
             <label for="preferences">Curatorial Directives (Pace, Vibe, Focus)</label>
         </div>
-        <button type="submit" class="primary-btn" id="generateBtn">
+        <button type="submit" class="primary-btn" id="generateBtn" aria-label="Craft Itinerary">
             <span>Craft Itinerary</span>
         </button>
     </form>
@@ -54,10 +54,10 @@
         <div class="spinner-line"></div>
         <div class="loader-text" id="loader-text">Consulting local intelligence...</div>
     </div>
-</div>
+</aside>
 
-<!-- Right: Scrollable Canvas -->
-<div class="output-panel">
+<!-- Right: Main Content Canvas -->
+<main class="output-panel" aria-label="Generated Travel Intelligence">
     <div id="results">
         <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 2rem;">
             <span class="eyebrow" style="margin-bottom: 0;">Bespoke Intelligence Briefing</span>
@@ -91,8 +91,8 @@
         </div>
 
     </div>
-</div>
+</main>
 
-<script src="app.js?v=3"></script>
+<script src="app.js?v=4"></script>
 </body>
 </html>

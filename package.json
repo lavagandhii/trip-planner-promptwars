@@ -2,9 +2,14 @@
   "name": "trip-planner-promptwars",
   "version": "1.0.0",
   "description": "Bespoke travel intelligence planner",
+  "main": "app.js",
   "scripts": {
-    "test": "node tests/unit.test.js"
+    "test": "node --test tests/*.test.js"
   },
+  "devDependencies": {
+    "jest": "^29.7.0"
+  },
+  "keywords": ["travel", "ai", "gemini", "tests"],
   "author": "",
   "license": "ISC"
 }

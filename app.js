@@ -259,17 +259,17 @@ const popularDestinations = [
             const daySummaryHtml = `<div style="color: var(--text-secondary); font-family: var(--font-head); font-size: 1.1rem; margin-bottom: 1rem; font-weight: 500;" aria-label="Day Summary">₹${combinedCost.toLocaleString()} · ${combinedHours.toFixed(1)} hrs total</div>`;
 
             const activitiesHtml = day.activities.map(act => `
-                <article class="activity-card" id="${act.id}" onclick="toggleWiki('${esc(act.title)}', this)" onkeydown="if(event.key==='Enter'||event.key===' '){event.preventDefault();toggleWiki('${esc(act.title)}', this);}" role="button" tabindex="0" aria-expanded="false">
+                <article class="activity-card" id="${act.id}" onclick="toggleWiki('${esc(act.title)}', this)" onkeydown="if(event.key==='Enter'||event.key===' '){event.preventDefault();toggleWiki('${esc(act.title)}', this);}" role="button" tabindex="0" aria-expanded="false" aria-label="Activity: ${esc(act.title)}">
                     <div class="act-header">
                         <div>
                             <div class="act-time">${esc(act.timeOfDay)}</div>
-                            <div class="act-title">${esc(act.title)}</div>
+                            <h4 class="act-title">${esc(act.title)}</h4>
                         </div>
-                        <div class="act-cost">₹${act.costINR.toLocaleString()}</div>
+                        <div class="act-cost" aria-label="Cost: ₹${act.costINR}">₹${act.costINR.toLocaleString()}</div>
                     </div>
                     <div class="act-meta">
-                        <span class="pill" aria-label="Duration">⏱️ ${act.durationHours}H Duration</span>
-                        <span class="pill transit" aria-label="Transit Time">🚕 ${act.travelTimeMins}M Transit</span>
+                        <span class="pill" aria-label="Duration ${act.durationHours} hours">⏱️ ${act.durationHours}H Duration</span>
+                        <span class="pill transit" aria-label="Transit ${act.travelTimeMins} minutes">🚕 ${act.travelTimeMins}M Transit</span>
                         <span style="color: ${act.costCategory === 'Local' ? 'var(--local-green)' : 'var(--tourist-orange)'}">${esc(act.costCategory)} Experience</span>
                     </div>
                     <div class="wiki-drawer" id="wiki-${act.id}" aria-hidden="true">
@@ -281,8 +281,7 @@ const popularDestinations = [
             return `
                 <section class="day-group" aria-labelledby="day-title-${day.day}">
                     <div class="day-indicator"></div>
-                    <h3 id="day-title-${day.day}">Day 0${day.day}</h3>
-                    <h2 style="margin-bottom: 0.5rem;">${esc(day.theme)}</h2>
+                    <h3 id="day-title-${day.day}" style="font-size: 1.8rem; margin-bottom: 0.5rem;"><span style="color: var(--accent); font-size: 1.1rem; display: block; text-transform: uppercase; letter-spacing: 0.1em; font-weight: 700;">Day 0${day.day}</span>${esc(day.theme)}</h3>
                     ${daySummaryHtml}
                     ${warningHtml}
                     <div style="margin-top: 1.5rem;">${activitiesHtml}</div>
@@ -377,7 +376,7 @@ const popularDestinations = [
             
             let imgHtml = '';
             if (data.thumbnail && data.thumbnail.source) {
-                imgHtml = `<img src="${data.thumbnail.source}" class="wiki-img" alt="${esc(data.title)}">`;
+                imgHtml = `<img src="${data.thumbnail.source}" class="wiki-img" alt="${esc(data.title || title || 'Location Image')}">`;
             }
 
             const finalHtml = `
