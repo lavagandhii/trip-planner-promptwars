@@ -38,8 +38,9 @@
         .input-panel {
             width: 35%;
             min-width: 400px;
-            padding: 4rem 3rem;
-            position: fixed;
+            padding: 2.5rem 3rem;
+            position: sticky;
+            top: 0;
             height: 100vh;
             overflow-y: auto;
             background: linear-gradient(180deg, rgba(16,30,26,0.8) 0%, rgba(10,20,17,1) 100%);
@@ -48,9 +49,8 @@
         }
 
         .output-panel {
-            margin-left: 35%;
-            width: 65%;
-            padding: 4rem;
+            flex: 1;
+            padding: 3rem;
             background-image: radial-gradient(circle at 100% 0%, rgba(217, 119, 87, 0.03) 0%, transparent 40%);
             min-height: 100vh;
         }
@@ -58,7 +58,7 @@
         @media (max-width: 1100px) {
             body { flex-direction: column; }
             .input-panel { width: 100%; position: relative; height: auto; min-width: auto; border-right: none; padding: 2rem; }
-            .output-panel { margin-left: 0; width: 100%; padding: 2rem; }
+            .output-panel { width: 100%; padding: 2rem; }
         }
 
         /* Typography */
@@ -105,7 +105,7 @@
 
         /* Visual Budget Breakdown */
         .budget-section { margin-bottom: 5rem; }
-        .budget-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 2rem; }
+        .budget-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 2rem; }
         .budget-card {
             background: rgba(255, 255, 255, 0.02); padding: 2rem; border-radius: 12px;
             border: 1px solid rgba(253, 251, 247, 0.05); box-shadow: 0 20px 40px rgba(0,0,0,0.2);
@@ -148,9 +148,9 @@
             border-radius: 12px; padding: 1.5rem; margin-bottom: 1rem; position: relative;
             box-shadow: 0 10px 20px rgba(0,0,0,0.1);
             transition: all 0.4s cubic-bezier(0.16, 1, 0.3, 1);
-            overflow: hidden;
+            overflow: hidden; cursor: pointer;
         }
-        .activity-card:hover { transform: translateX(5px); background: rgba(255, 255, 255, 0.03); }
+        .activity-card:hover { transform: translateX(5px); background: rgba(255, 255, 255, 0.03); border-color: rgba(217, 119, 87, 0.3); }
         .activity-card.collapsing { height: 0 !important; padding: 0 !important; margin: 0 !important; opacity: 0; border: none; }
         
         .act-header { display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 1rem; }
@@ -176,6 +176,29 @@
             color: var(--accent); padding: 1.5rem; border-radius: 4px; margin-bottom: 2rem; 
             font-family: var(--font-body); font-weight: 500; animation: fadeIn 0.3s;
         }
+
+        /* Autocomplete */
+        .autocomplete-items {
+            position: absolute; border: 1px solid rgba(253, 251, 247, 0.1); 
+            background-color: var(--bg-surface); z-index: 99; top: 100%; left: 0; right: 0;
+            border-radius: 4px; overflow: hidden; box-shadow: 0 10px 20px rgba(0,0,0,0.3);
+            max-height: 200px; overflow-y: auto; display: none;
+        }
+        .autocomplete-items div {
+            padding: 10px; cursor: pointer; border-bottom: 1px solid rgba(253, 251, 247, 0.05);
+        }
+        .autocomplete-items div:hover { background-color: var(--accent); color: var(--bg-base); }
+
+        /* Wikipedia Expander */
+        .wiki-drawer {
+            max-height: 0; overflow: hidden; transition: all 0.4s ease-out;
+            background: rgba(0,0,0,0.2); border-radius: 8px; margin-top: 0;
+            display: flex; gap: 1rem; align-items: flex-start; opacity: 0;
+        }
+        .wiki-drawer.open { max-height: 400px; padding: 1.2rem; margin-top: 1.5rem; border: 1px solid rgba(253,251,247,0.05); opacity: 1; }
+        .wiki-img { width: 100px; height: 100px; object-fit: cover; border-radius: 6px; flex-shrink: 0; background: var(--bg-base); }
+        .wiki-text { font-size: 0.95rem; color: var(--text-secondary); line-height: 1.5; }
+        .wiki-link { color: var(--accent); text-decoration: none; font-size: 0.8rem; margin-top: 0.5rem; display: inline-block; text-transform: uppercase; letter-spacing: 0.05em;}
     </style>
 </head>
 <body>
@@ -189,21 +212,10 @@
     <div id="error-box"></div>
 
     <form id="tripForm">
-        <div class="form-group">
-            <input type="text" id="destination" list="destination-options" required placeholder=" " value="Kyoto, Japan">
+        <div class="form-group" style="position: relative;">
+            <input type="text" id="destination" required placeholder=" " value="Kyoto, Japan" autocomplete="off">
             <label for="destination">Destination</label>
-            <datalist id="destination-options">
-                <option value="Kyoto, Japan">
-                <option value="Tokyo, Japan">
-                <option value="Paris, France">
-                <option value="Rome, Italy">
-                <option value="New York City, USA">
-                <option value="Bali, Indonesia">
-                <option value="Reykjavik, Iceland">
-                <option value="Cape Town, South Africa">
-                <option value="Machu Picchu, Peru">
-                <option value="Queenstown, New Zealand">
-            </datalist>
+            <div id="autocomplete-list" class="autocomplete-items"></div>
         </div>
         <div class="form-group">
             <input type="number" id="days" required min="1" max="14" value="3" placeholder=" ">
@@ -214,13 +226,13 @@
             <label for="budget">Total Cap (₹ INR)</label>
         </div>
         <div class="form-group">
+            <label for="travelerType" style="margin-bottom:0.5rem; padding-top: 0.5rem;">Travel Unit</label>
             <select id="travelerType">
                 <option value="Solo">Solo Explorer</option>
                 <option value="Couple" selected>Couple</option>
                 <option value="Family">Family</option>
                 <option value="Friends">Group</option>
             </select>
-            <label for="travelerType" style="margin-top:-2rem; margin-bottom:1.5rem;">Travel Unit</label>
         </div>
         <div class="form-group">
             <textarea id="preferences" placeholder=" "></textarea>
@@ -271,6 +283,42 @@
 </div>
 
 <script>
+    const popularDestinations = [
+        "Kyoto, Japan", "Tokyo, Japan", "Paris, France", "Rome, Italy", 
+        "New York City, USA", "Bali, Indonesia", "Reykjavik, Iceland", 
+        "Cape Town, South Africa", "Machu Picchu, Peru", "Queenstown, New Zealand"
+    ];
+
+    const destInput = document.getElementById('destination');
+    const autoList = document.getElementById('autocomplete-list');
+
+    destInput.addEventListener('input', function() {
+        const val = this.value;
+        autoList.innerHTML = '';
+        if (!val) { autoList.style.display = 'none'; return; }
+        
+        let hasMatches = false;
+        popularDestinations.forEach(dest => {
+            if (dest.toLowerCase().includes(val.toLowerCase())) {
+                hasMatches = true;
+                const div = document.createElement('div');
+                div.innerHTML = dest.replace(new RegExp(val, "gi"), match => `<strong>${match}</strong>`);
+                div.addEventListener('click', function() {
+                    destInput.value = dest;
+                    autoList.style.display = 'none';
+                });
+                autoList.appendChild(div);
+            }
+        });
+        autoList.style.display = hasMatches ? 'block' : 'none';
+    });
+
+    document.addEventListener('click', function(e) {
+        if (e.target !== destInput && e.target !== autoList) {
+            autoList.style.display = 'none';
+        }
+    });
+
     let currentPlan = null;
 
     document.getElementById('tripForm').addEventListener('submit', async (e) => {
@@ -421,7 +469,7 @@
             }
 
             const activitiesHtml = day.activities.map(act => `
-                <div class="activity-card" id="${act.id}">
+                <div class="activity-card" id="${act.id}" onclick="toggleWiki('${esc(act.title)}', this)">
                     <div class="act-header">
                         <div>
                             <div class="act-time">${esc(act.timeOfDay)}</div>
@@ -433,6 +481,9 @@
                         <span class="pill">⏱️ ${act.durationHours}H Duration</span>
                         <span class="pill transit">🚕 ${act.travelTimeMins}M Transit</span>
                         <span style="color: ${act.costCategory === 'Local' ? 'var(--local-green)' : 'var(--tourist-orange)'}">${esc(act.costCategory)} Experience</span>
+                    </div>
+                    <div class="wiki-drawer" id="wiki-${act.id}">
+                        <!-- Wiki content loads here -->
                     </div>
                 </div>
             `).join('');
@@ -450,6 +501,7 @@
     }
 
     window.skipActivity = function(dayIndex, activityId) {
+        event.stopPropagation(); // Prevent wiki expand on skip
         const day = currentPlan.itinerary[dayIndex];
         const card = document.getElementById(activityId);
         
@@ -466,6 +518,58 @@
             day.activities = day.activities.filter(a => a.id !== activityId);
             renderPlan();
         }, 400); // Matches CSS transition duration
+    };
+
+    window.toggleWiki = async function(title, cardElement) {
+        const drawer = cardElement.querySelector('.wiki-drawer');
+        
+        // If already open, close it
+        if (drawer.classList.contains('open')) {
+            drawer.classList.remove('open');
+            return;
+        }
+
+        // Close any other open drawers in the itinerary
+        document.querySelectorAll('.wiki-drawer.open').forEach(d => {
+            if(d !== drawer) d.classList.remove('open');
+        });
+
+        // If content is already loaded, just open it
+        if (drawer.innerHTML.trim() !== '<!-- Wiki content loads here -->') {
+            drawer.classList.add('open');
+            return;
+        }
+
+        drawer.innerHTML = `<div class="wiki-text" style="padding: 1rem;">Scanning global databases...</div>`;
+        drawer.classList.add('open');
+
+        try {
+            // Clean up title for better search (remove generic words like "Visit", "Tour")
+            let searchTitle = title.replace(/Visit |Tour|Experience|Morning at |Afternoon at /ig, '').split(',')[0].trim();
+            const res = await fetch(`https://en.wikipedia.org/api/rest_v1/page/summary/${encodeURIComponent(searchTitle)}`);
+            
+            if (res.status === 404) {
+                drawer.innerHTML = `<div class="wiki-text" style="padding: 1rem;">No specific historical records found for this location.</div>`;
+                return;
+            }
+
+            const data = await res.json();
+            
+            let imgHtml = '';
+            if (data.thumbnail && data.thumbnail.source) {
+                imgHtml = `<img src="${data.thumbnail.source}" class="wiki-img" alt="${esc(data.title)}">`;
+            }
+
+            drawer.innerHTML = `
+                ${imgHtml}
+                <div>
+                    <div class="wiki-text">${esc(data.extract)}</div>
+                    <a href="${data.content_urls.desktop.page}" target="_blank" class="wiki-link">View Full Intel →</a>
+                </div>
+            `;
+        } catch (e) {
+            drawer.innerHTML = `<div class="wiki-text" style="padding: 1rem;">Database connection interrupted.</div>`;
+        }
     };
 </script>
 </body>
